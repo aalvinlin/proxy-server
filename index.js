@@ -5,21 +5,26 @@ const cors = require("cors");
 
 const server = express();
 server.use(express.json());
+
 server.use(cors());
+const corsOptions = {
+    origin: "http://localhost:3000"
+}
+
 
 const axios = require("axios");
 const remoteEndpoint = process.env.URL;
 const responseProperty = process.env.RESPONSE_PROPERTY;
 
-server.use("/", async (req, res) => {
+server.use("/", cors(corsOptions), async (req, res) => {
 
     // remove first "/" character from req.url
     if (process.env.REMOVE_LEADING_SLASH)
         { req.url = req.url.slice(1); }
 
-    await axios.get(remoteEndpoint + req.url)
+    await axios.get(req.url)
         .then(response => {
-            console.log(response[responseProperty]);
+            console.log("Data retrieved from", req.url);
             res.status(200).json(response[responseProperty]);
         })
         .catch(error => {
